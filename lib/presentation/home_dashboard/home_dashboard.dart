@@ -109,62 +109,129 @@ class _HomeDashboardState extends State<HomeDashboard>
       context: context,
       builder: (BuildContext context) {
         final TextEditingController urlController = TextEditingController();
-        return AlertDialog(
-          title: Text(
-            'Add Video URL',
-            style: AppTheme.lightTheme.textTheme.titleLarge,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: urlController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter YouTube video URL',
-                  prefixIcon: Icon(Icons.link),
-                ),
+        String selectedMode = 'Summary';
+        String selectedProvider = 'mock';
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(
+                'Add Video URL',
+                style: AppTheme.lightTheme.textTheme.titleLarge,
               ),
-              SizedBox(height: 2.h),
-              Text(
-                'Choose processing mode:',
-                style: AppTheme.lightTheme.textTheme.bodyMedium,
-              ),
-              SizedBox(height: 1.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildModeChip('Summary'),
-                  _buildModeChip('Presentation'),
-                  _buildModeChip('Action Plan'),
+                  TextField(
+                    controller: urlController,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter YouTube video URL',
+                      prefixIcon: Icon(Icons.link),
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    'Choose processing mode:',
+                    style: AppTheme.lightTheme.textTheme.bodyMedium,
+                  ),
+                  SizedBox(height: 1.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildModeChip('Summary', selectedMode, (mode) {
+                        setState(() => selectedMode = mode);
+                      }),
+                      _buildModeChip('Presentation', selectedMode, (mode) {
+                        setState(() => selectedMode = mode);
+                      }),
+                      _buildModeChip('Action Plan', selectedMode, (mode) {
+                        setState(() => selectedMode = mode);
+                      }),
+                    ],
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    'AI Provider:',
+                    style: AppTheme.lightTheme.textTheme.bodyMedium,
+                  ),
+                  SizedBox(height: 1.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildProviderChip('Mock', selectedProvider, (provider) {
+                        setState(() => selectedProvider = provider);
+                      }),
+                      _buildProviderChip('Gemini', selectedProvider,
+                          (provider) {
+                        setState(() => selectedProvider = provider);
+                      }),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.pushNamed(context, '/processing-status-screen');
-              },
-              child: const Text('Process'),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.pushNamed(
+                      context,
+                      '/processing-status-screen',
+                      arguments: {
+                        'url': urlController.text,
+                        'mode': selectedMode,
+                        'provider': selectedProvider,
+                      },
+                    );
+                  },
+                  child: const Text('Process'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildModeChip(String mode) {
-    return Chip(
-      label: Text(
-        mode,
-        style: AppTheme.lightTheme.textTheme.bodySmall,
+  Widget _buildModeChip(
+      String mode, String selectedMode, Function(String) onSelect) {
+    final isSelected = mode == selectedMode;
+    return GestureDetector(
+      onTap: () => onSelect(mode),
+      child: Chip(
+        label: Text(
+          mode,
+          style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
+            color: isSelected ? Colors.white : null,
+          ),
+        ),
+        backgroundColor: isSelected
+            ? AppTheme.lightTheme.colorScheme.primary
+            : AppTheme.lightTheme.colorScheme.primaryContainer,
       ),
-      backgroundColor: AppTheme.lightTheme.colorScheme.primaryContainer,
+    );
+  }
+
+  Widget _buildProviderChip(
+      String provider, String selectedProvider, Function(String) onSelect) {
+    final isSelected = provider.toLowerCase() == selectedProvider.toLowerCase();
+    return GestureDetector(
+      onTap: () => onSelect(provider.toLowerCase()),
+      child: Chip(
+        label: Text(
+          provider,
+          style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
+            color: isSelected ? Colors.white : null,
+          ),
+        ),
+        backgroundColor: isSelected
+            ? AppTheme.lightTheme.colorScheme.secondary
+            : AppTheme.lightTheme.colorScheme.secondaryContainer,
+      ),
     );
   }
 

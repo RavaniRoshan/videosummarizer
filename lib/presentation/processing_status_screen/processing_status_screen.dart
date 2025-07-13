@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../core/app_export.dart';
+import '../../services/ai_processing_service.dart';
 import './widgets/processing_actions_widget.dart';
 import './widgets/processing_header_widget.dart';
 import './widgets/processing_queue_widget.dart';
@@ -22,6 +23,13 @@ class _ProcessingStatusScreenState extends State<ProcessingStatusScreen>
   late Animation<double> _progressAnimation;
   late Animation<double> _pulseAnimation;
 
+  final AIProcessingService _aiService = AIProcessingService();
+  String _currentProvider = 'mock';
+  String _processingMode = 'Summary';
+  String _videoUrl = '';
+  String _generatedSummary = '';
+  bool _isStreamingComplete = false;
+
   // Mock processing data
   final Map<String, dynamic> currentProcessing = {
     "id": "proc_001",
@@ -29,14 +37,14 @@ class _ProcessingStatusScreenState extends State<ProcessingStatusScreen>
     "videoThumbnail":
         "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=225&fit=crop",
     "processingMode": "Presentation Format",
-    "progress": 65.0,
-    "currentStage": "AI Processing",
-    "estimatedTimeRemaining": "2 minutes",
-    "startTime": "2025-07-13 06:05:08",
+    "progress": 0.0,
+    "currentStage": "Video Download",
+    "estimatedTimeRemaining": "5 minutes",
+    "startTime": "2025-07-13 07:11:36",
     "stages": [
-      {"name": "Video Download", "status": "completed", "icon": "download"},
-      {"name": "Content Analysis", "status": "completed", "icon": "analytics"},
-      {"name": "AI Processing", "status": "active", "icon": "psychology"},
+      {"name": "Video Download", "status": "active", "icon": "download"},
+      {"name": "Content Analysis", "status": "pending", "icon": "analytics"},
+      {"name": "AI Processing", "status": "pending", "icon": "psychology"},
       {"name": "Summary Generation", "status": "pending", "icon": "description"}
     ]
   };
@@ -76,7 +84,24 @@ class _ProcessingStatusScreenState extends State<ProcessingStatusScreen>
   void initState() {
     super.initState();
     _initializeAnimations();
+    _extractArguments();
     _startProcessingSimulation();
+  }
+
+  void _extractArguments() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      if (args != null) {
+        setState(() {
+          _videoUrl = args['url'] ?? '';
+          _processingMode = args['mode'] ?? 'Summary';
+          _currentProvider = args['provider'] ?? 'mock';
+          currentProcessing['processingMode'] = '$_processingMode Format';
+        });
+        _aiService.setAIProvider(_currentProvider);
+      }
+    });
   }
 
   void _initializeAnimations() {
@@ -110,21 +135,104 @@ class _ProcessingStatusScreenState extends State<ProcessingStatusScreen>
     _pulseController.repeat(reverse: true);
   }
 
-  void _startProcessingSimulation() {
-    // Simulate processing progress updates
-    Future.delayed(const Duration(seconds: 3), () {
+  void _startProcessingSimulation() async {
+    // Stage 1: Video Download
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      setState(() {
+        currentProcessing["progress"] = 25.0;
+        currentProcessing["currentStage"] = "Content Analysis";
+        currentProcessing["estimatedTimeRemaining"] = "4 minutes";
+        (currentProcessing["stages"] as List)[0]["status"] = "completed";
+        (currentProcessing["stages"] as List)[1]["status"] = "active";
+      });
+      _updateProgressAnimation();
+    }
+
+    // Stage 2: Content Analysis
+    await Future.delayed(const Duration(seconds: 3));
+    if (mounted) {
+      setState(() {
+        currentProcessing["progress"] = 50.0;
+        currentProcessing["currentStage"] = "AI Processing";
+        currentProcessing["estimatedTimeRemaining"] = "3 minutes";
+        (currentProcessing["stages"] as List)[1]["status"] = "completed";
+        (currentProcessing["stages"] as List)[2]["status"] = "active";
+      });
+      _updateProgressAnimation();
+    }
+
+    // Stage 3: AI Processing with real or mock AI
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      setState(() {
+        currentProcessing["progress"] = 75.0;
+        currentProcessing["currentStage"] = "Summary Generation";
+        currentProcessing["estimatedTimeRemaining"] = "1 minute";
+        (currentProcessing["stages"] as List)[2]["status"] = "completed";
+        (currentProcessing["stages"] as List)[3]["status"] = "active";
+      });
+      _updateProgressAnimation();
+
+      // Start AI processing
+      _startAIProcessing();
+    }
+  }
+
+  void _startAIProcessing() async {
+    try {
+      // Mock video transcript for demonstration
+      const mockTranscript = '''
+      Welcome to this comprehensive tutorial on Flutter state management. 
+      In this video, we'll explore various approaches including Provider, Bloc, and Riverpod.
+      State management is crucial for building scalable Flutter applications.
+      We'll start with the basics and gradually move to more advanced concepts.
+      By the end of this tutorial, you'll have a solid understanding of when and how to use different state management solutions.
+      ''';
+
+      if (_currentProvider == 'gemini') {
+        // Use real Gemini API
+        await for (final chunk in _aiService.streamVideoSummary(
+          videoTranscript: mockTranscript,
+          mode: _processingMode,
+        )) {
+          if (mounted) {
+            setState(() {
+              _generatedSummary += chunk;
+            });
+          }
+        }
+      } else {
+        // Use mock processing
+        final summary = await _aiService.processVideoSummary(
+          videoTranscript: mockTranscript,
+          mode: _processingMode,
+        );
+        setState(() {
+          _generatedSummary = summary;
+        });
+      }
+
+      // Complete processing
+      await Future.delayed(const Duration(seconds: 1));
       if (mounted) {
         setState(() {
-          currentProcessing["progress"] = 80.0;
-          currentProcessing["currentStage"] = "Summary Generation";
-          currentProcessing["estimatedTimeRemaining"] = "1 minute";
-          // Update stages
-          (currentProcessing["stages"] as List)[2]["status"] = "completed";
-          (currentProcessing["stages"] as List)[3]["status"] = "active";
+          currentProcessing["progress"] = 100.0;
+          currentProcessing["currentStage"] = "Completed";
+          currentProcessing["estimatedTimeRemaining"] = "Done";
+          (currentProcessing["stages"] as List)[3]["status"] = "completed";
+          _isStreamingComplete = true;
         });
         _updateProgressAnimation();
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _generatedSummary = 'Error during AI processing: ${e.toString()}';
+          currentProcessing["currentStage"] = "Error";
+        });
+      }
+    }
   }
 
   void _updateProgressAnimation() {
@@ -227,6 +335,24 @@ class _ProcessingStatusScreenState extends State<ProcessingStatusScreen>
           style: AppTheme.lightTheme.appBarTheme.titleTextStyle,
         ),
         actions: [
+          // AI Provider indicator
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.5.h),
+            margin: EdgeInsets.only(right: 2.w),
+            decoration: BoxDecoration(
+              color: _currentProvider == 'gemini'
+                  ? AppTheme.lightTheme.colorScheme.primary
+                  : AppTheme.lightTheme.colorScheme.secondary,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              _currentProvider.toUpperCase(),
+              style: AppTheme.lightTheme.textTheme.labelSmall?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
           IconButton(
             onPressed: () {
               setState(() {
@@ -324,6 +450,82 @@ class _ProcessingStatusScreenState extends State<ProcessingStatusScreen>
               ),
 
               SizedBox(height: 3.h),
+
+              // AI Generated Content Preview
+              if (_generatedSummary.isNotEmpty) ...[
+                Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(4.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            CustomIconWidget(
+                              iconName: 'auto_awesome',
+                              color: AppTheme.lightTheme.colorScheme.primary,
+                              size: 24,
+                            ),
+                            SizedBox(width: 2.w),
+                            Text(
+                              'AI Generated ${_processingMode}',
+                              style: AppTheme.lightTheme.textTheme.titleMedium
+                                  ?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const Spacer(),
+                            if (!_isStreamingComplete)
+                              SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppTheme.lightTheme.colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        SizedBox(height: 2.h),
+                        Container(
+                          constraints: BoxConstraints(maxHeight: 30.h),
+                          child: SingleChildScrollView(
+                            child: Text(
+                              _generatedSummary,
+                              style: AppTheme.lightTheme.textTheme.bodyMedium,
+                            ),
+                          ),
+                        ),
+                        if (_isStreamingComplete) ...[
+                          SizedBox(height: 2.h),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/summary-view-screen',
+                                    arguments: {
+                                      'summary': _generatedSummary,
+                                      'mode': _processingMode,
+                                      'provider': _currentProvider,
+                                    },
+                                  );
+                                },
+                                child: const Text('View Full Summary'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 3.h),
+              ],
 
               // Processing Queue
               if (processingQueue.isNotEmpty) ...[

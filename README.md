@@ -1,112 +1,160 @@
-# Flutter
+# videosummarizer
 
-A modern Flutter-based mobile application utilizing the latest mobile development technologies and tools for building responsive cross-platform applications.
+A powerful Flutter application that transforms YouTube videos into structured summaries, presentations, and action plans using advanced AI technology.
 
-## 📋 Prerequisites
+## Features
 
-- Flutter SDK (^3.29.2)
-- Dart SDK
-- Android Studio / VS Code with Flutter extensions
-- Android SDK / Xcode (for iOS development)
+- **Multiple AI Providers**: Choose between Mock processing and Google Gemini AI
+- **Video Processing**: Convert YouTube videos into structured content
+- **Multiple Output Formats**: 
+  - Comprehensive summaries
+  - Presentation-ready formats
+  - Actionable plans
+- **Real-time Processing**: Live streaming of AI-generated content
+- **Notes Management**: Create and organize personal notes
+- **Cross-platform**: Works on iOS, Android, and Web
 
-## 🛠️ Installation
+## AI Integration
 
-1. Install dependencies:
-```bash
-flutter pub get
-```
+### Gemini AI
+This app integrates with Google's Gemini AI for advanced natural language processing:
+- Text generation and summarization
+- Multi-modal content processing
+- Streaming responses for real-time updates
+- Multiple model support (gemini-1.5-flash, gemini-1.5-pro, etc.)
 
-2. Run the application:
-```bash
-flutter run
-```
+### Setup Instructions
 
-## 📁 Project Structure
+1. **Get Gemini API Key**:
+   - Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
+   - Create or sign in to your Google account
+   - Generate a new API key
+   - Save the API key securely
 
-```
-flutter_app/
-├── android/            # Android-specific configuration
-├── ios/                # iOS-specific configuration
-├── lib/
-│   ├── core/           # Core utilities and services
-│   │   └── utils/      # Utility classes
-│   ├── presentation/   # UI screens and widgets
-│   │   └── splash_screen/ # Splash screen implementation
-│   ├── routes/         # Application routing
-│   ├── theme/          # Theme configuration
-│   ├── widgets/        # Reusable UI components
-│   └── main.dart       # Application entry point
-├── assets/             # Static assets (images, fonts, etc.)
-├── pubspec.yaml        # Project dependencies and configuration
-└── README.md           # Project documentation
-```
+2. **Configure Environment Variables**:
+   ```bash
+   # For development
+   flutter run --dart-define=GEMINI_API_KEY=your_gemini_api_key_here
+   
+   # For building
+   flutter build apk --dart-define=GEMINI_API_KEY=your_gemini_api_key_here
+   ```
 
-## 🧩 Adding Routes
+3. **Alternative Configuration**:
+   You can also set up environment variables in your IDE:
+   - **VS Code**: Add to launch.json configurations
+   - **Android Studio**: Add to run configurations
+   - **Command Line**: Export as environment variable
 
-To add new routes to the application, update the `lib/routes/app_routes.dart` file:
+## Getting Started
 
-```dart
-import 'package:flutter/material.dart';
-import 'package:package_name/presentation/home_screen/home_screen.dart';
+### Prerequisites
+- Flutter SDK ≥ 3.10
+- Dart ≥ 3.0
+- Valid Gemini API key (optional, app works with mock data)
 
-class AppRoutes {
-  static const String initial = '/';
-  static const String home = '/home';
+### Installation
 
-  static Map<String, WidgetBuilder> routes = {
-    initial: (context) => const SplashScreen(),
-    home: (context) => const HomeScreen(),
-    // Add more routes as needed
-  }
-}
-```
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd videosummarizer
+   ```
 
-## 🎨 Theming
+2. **Install dependencies**:
+   ```bash
+   flutter pub get
+   ```
 
-This project includes a comprehensive theming system with both light and dark themes:
+3. **Run the application**:
+   ```bash
+   # With mock AI (no API key required)
+   flutter run
+   
+   # With Gemini AI
+   flutter run --dart-define=GEMINI_API_KEY=your_api_key
+   ```
 
-```dart
-// Access the current theme
-ThemeData theme = Theme.of(context);
+## Usage
 
-// Use theme colors
-Color primaryColor = theme.colorScheme.primary;
-```
+### Processing Videos
 
-The theme configuration includes:
-- Color schemes for light and dark modes
-- Typography styles
-- Button themes
-- Input decoration themes
-- Card and dialog themes
+1. **Add Video URL**: Enter a YouTube video URL
+2. **Choose Processing Mode**:
+   - **Summary**: Comprehensive overview with key points
+   - **Presentation**: Structured format ready for presentations
+   - **Action Plan**: Actionable items with priorities and timelines
+3. **Select AI Provider**:
+   - **Mock**: Uses predefined responses (no API key required)
+   - **Gemini**: Uses real AI processing (requires API key)
+4. **Monitor Progress**: Watch real-time processing status
+5. **View Results**: Access generated content and save notes
 
-## 📱 Responsive Design
+### Managing Notes
 
-The app is built with responsive design using the Sizer package:
+- Create personal notes during video review
+- Organize with tags and categories
+- Search and filter your note library
+- Export notes in various formats
 
-```dart
-// Example of responsive sizing
-Container(
-  width: 50.w, // 50% of screen width
-  height: 20.h, // 20% of screen height
-  child: Text('Responsive Container'),
-)
-```
-## 📦 Deployment
+## Architecture
 
-Build the application for production:
+### Core Components
 
-```bash
-# For Android
-flutter build apk --release
+- **Services Layer**: AI processing, API clients, data management
+- **Presentation Layer**: UI screens and widgets
+- **Core Layer**: Shared utilities, themes, and configurations
+- **Routes**: Navigation and screen management
 
-# For iOS
-flutter build ios --release
-```
+### AI Processing Flow
 
-## 🙏 Acknowledgments
-- Built with [Rocket.new](https://rocket.new)
-- Powered by [Flutter](https://flutter.dev) & [Dart](https://dart.dev)
-- Styled with Material Design
+1. **Video Input**: URL validation and metadata extraction
+2. **Content Analysis**: Transcript processing and structure analysis
+3. **AI Processing**: Gemini API integration or mock processing
+4. **Output Generation**: Formatted content creation
+5. **Storage**: Save processed content and user notes
 
-Built with ❤️ on Rocket.new
+## API Integration
+
+### Gemini API Features
+
+- **Text Generation**: Create summaries and structured content
+- **Streaming**: Real-time content generation
+- **Multi-modal**: Process text and images
+- **Model Selection**: Choose optimal model for your use case
+
+### Supported Models
+
+- `gemini-1.5-flash-002`: Fast, cost-effective processing
+- `gemini-1.5-pro`: Advanced reasoning and complex tasks
+- `gemini-2.0-flash`: Latest generation with enhanced capabilities
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Submit a pull request
+
+## Security Notes
+
+- Never commit API keys to version control
+- Use environment variables for sensitive data
+- Consider using backend proxy for production apps
+- Regularly rotate API keys
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For support and questions:
+- Check the documentation
+- Review existing issues
+- Create a new issue with detailed information
+
+---
+
+**Note**: This application is designed for educational and productivity purposes. Please ensure you comply with YouTube's terms of service when processing videos.
