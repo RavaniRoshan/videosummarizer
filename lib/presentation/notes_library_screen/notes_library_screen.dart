@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../core/app_export.dart';
 import './widgets/filter_bottom_sheet_widget.dart';
 import './widgets/note_card_widget.dart';
 import './widgets/search_bar_widget.dart';
@@ -289,7 +288,7 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.lightTheme.scaffoldBackgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _isSelectionMode ? _buildSelectionAppBar() : _buildNormalAppBar(),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -299,6 +298,7 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
           });
           _sortNotes();
         },
+        color: Theme.of(context).colorScheme.primary,
         child: Column(
           children: [
             if (!_isSelectionMode) _buildSearchSection(),
@@ -320,10 +320,20 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
     return AppBar(
       title: Text(
         'Notes Library',
-        style: AppTheme.lightTheme.textTheme.titleLarge,
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
       ),
-      backgroundColor: AppTheme.lightTheme.appBarTheme.backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
+      leading: IconButton(
+        onPressed: () => Navigator.pop(context),
+        icon: Icon(
+          Icons.arrow_back,
+          color: Theme.of(context).colorScheme.onSurface,
+          size: 22,
+        ),
+      ),
       actions: [
         IconButton(
           onPressed: () {
@@ -331,18 +341,18 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
               _isSearching = !_isSearching;
             });
           },
-          icon: CustomIconWidget(
-            iconName: _isSearching ? 'close' : 'search',
-            color: AppTheme.lightTheme.colorScheme.onSurface,
-            size: 24,
+          icon: Icon(
+            _isSearching ? Icons.close : Icons.search,
+            color: Theme.of(context).colorScheme.onSurface,
+            size: 22,
           ),
         ),
         IconButton(
           onPressed: _showFilterBottomSheet,
-          icon: CustomIconWidget(
-            iconName: 'filter_list',
-            color: AppTheme.lightTheme.colorScheme.onSurface,
-            size: 24,
+          icon: Icon(
+            Icons.filter_list,
+            color: Theme.of(context).colorScheme.onSurface,
+            size: 22,
           ),
         ),
         SizedBox(width: 2.w),
@@ -354,25 +364,28 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
     return AppBar(
       title: Text(
         '${_selectedNotes.length} selected',
-        style: AppTheme.lightTheme.textTheme.titleLarge,
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
       ),
-      backgroundColor: AppTheme.lightTheme.colorScheme.primary,
-      foregroundColor: AppTheme.lightTheme.colorScheme.onPrimary,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      elevation: 0,
       leading: IconButton(
         onPressed: _exitSelectionMode,
-        icon: CustomIconWidget(
-          iconName: 'close',
-          color: AppTheme.lightTheme.colorScheme.onPrimary,
-          size: 24,
+        icon: Icon(
+          Icons.close,
+          color: Colors.white,
+          size: 22,
         ),
       ),
       actions: [
         IconButton(
           onPressed: _selectedNotes.isNotEmpty ? _bulkDelete : null,
-          icon: CustomIconWidget(
-            iconName: 'delete',
-            color: AppTheme.lightTheme.colorScheme.onPrimary,
-            size: 24,
+          icon: Icon(
+            Icons.delete_outline,
+            color: Colors.white,
+            size: 22,
           ),
         ),
         IconButton(
@@ -381,10 +394,10 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
                   // Bulk export functionality
                 }
               : null,
-          icon: CustomIconWidget(
-            iconName: 'share',
-            color: AppTheme.lightTheme.colorScheme.onPrimary,
-            size: 24,
+          icon: Icon(
+            Icons.share,
+            color: Colors.white,
+            size: 22,
           ),
         ),
         SizedBox(width: 2.w),
@@ -398,15 +411,19 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
       height: _isSearching ? 12.h : 0,
       child: _isSearching
           ? Container(
-              padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-              child: Column(
-                children: [
-                  SearchBarWidget(
-                    controller: _searchController,
-                    onChanged: _searchNotes,
-                    searchHistory: _searchHistory,
+              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Theme.of(context).colorScheme.outline,
+                    width: 1,
                   ),
-                ],
+                ),
+              ),
+              child: SearchBarWidget(
+                controller: _searchController,
+                onChanged: _searchNotes,
+                searchHistory: _searchHistory,
               ),
             )
           : SizedBox.shrink(),
@@ -415,7 +432,15 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
 
   Widget _buildSortAndViewToggle() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+            width: 1,
+          ),
+        ),
+      ),
       child: Row(
         children: [
           Expanded(
@@ -444,29 +469,37 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
         });
         _sortNotes();
       },
+      color: Theme.of(context).cardColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline,
+          width: 1,
+        ),
+      ),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
         decoration: BoxDecoration(
-          border: Border.all(color: AppTheme.lightTheme.colorScheme.outline),
-          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
+          borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CustomIconWidget(
-              iconName: 'sort',
-              color: AppTheme.lightTheme.colorScheme.onSurface,
+            Icon(
+              Icons.sort,
+              color: Theme.of(context).colorScheme.onSurface,
               size: 16,
             ),
             SizedBox(width: 1.w),
             Text(
               _selectedSort,
-              style: AppTheme.lightTheme.textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.labelMedium,
             ),
             SizedBox(width: 1.w),
-            CustomIconWidget(
-              iconName: 'keyboard_arrow_down',
-              color: AppTheme.lightTheme.colorScheme.onSurface,
+            Icon(
+              Icons.keyboard_arrow_down,
+              color: Theme.of(context).colorScheme.onSurface,
               size: 16,
             ),
           ],
@@ -480,7 +513,10 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
       ]
           .map((sort) => PopupMenuItem(
                 value: sort,
-                child: Text(sort),
+                child: Text(
+                  sort,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ))
           .toList(),
     );
@@ -490,25 +526,37 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
     return _selectedTags
         .map((tag) => Container(
               margin: EdgeInsets.only(right: 2.w),
-              child: Chip(
-                label: Text(
-                  tag,
-                  style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
-                    color: AppTheme.lightTheme.colorScheme.onPrimary,
-                  ),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.5.h),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                backgroundColor: AppTheme.lightTheme.colorScheme.primary,
-                deleteIcon: CustomIconWidget(
-                  iconName: 'close',
-                  color: AppTheme.lightTheme.colorScheme.onPrimary,
-                  size: 16,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      tag,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Colors.white,
+                          ),
+                    ),
+                    SizedBox(width: 1.w),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedTags.remove(tag);
+                        });
+                        _applyFilters();
+                      },
+                      child: Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 14,
+                      ),
+                    ),
+                  ],
                 ),
-                onDeleted: () {
-                  setState(() {
-                    _selectedTags.remove(tag);
-                  });
-                  _applyFilters();
-                },
               ),
             ))
         .toList();
@@ -517,20 +565,20 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
   Widget _buildViewToggle() {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: AppTheme.lightTheme.colorScheme.outline),
-        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildViewToggleButton(false, 'view_list'),
-          _buildViewToggleButton(true, 'grid_view'),
+          _buildViewToggleButton(false, Icons.view_list),
+          _buildViewToggleButton(true, Icons.grid_view),
         ],
       ),
     );
   }
 
-  Widget _buildViewToggleButton(bool isGrid, String iconName) {
+  Widget _buildViewToggleButton(bool isGrid, IconData icon) {
     final isSelected = _isGridView == isGrid;
     return GestureDetector(
       onTap: () {
@@ -542,16 +590,16 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
         padding: EdgeInsets.all(2.w),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppTheme.lightTheme.colorScheme.primary
+              ? Theme.of(context).colorScheme.primary
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(4),
         ),
-        child: CustomIconWidget(
-          iconName: iconName,
+        child: Icon(
+          icon,
           color: isSelected
-              ? AppTheme.lightTheme.colorScheme.onPrimary
-              : AppTheme.lightTheme.colorScheme.onSurface,
-          size: 20,
+              ? Colors.white
+              : Theme.of(context).colorScheme.onSurface,
+          size: 18,
         ),
       ),
     );
@@ -563,34 +611,37 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
 
   Widget _buildListView() {
     return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
       itemCount: _filteredNotes.length,
       itemBuilder: (context, index) {
         final note = _filteredNotes[index];
-        return NoteCardWidget(
-          note: note,
-          isSelected: _selectedNotes.contains(note['id']),
-          isSelectionMode: _isSelectionMode,
-          onTap: () {
-            if (_isSelectionMode) {
+        return Container(
+          margin: EdgeInsets.only(bottom: 1.5.h),
+          child: NoteCardWidget(
+            note: note,
+            isSelected: _selectedNotes.contains(note['id']),
+            isSelectionMode: _isSelectionMode,
+            onTap: () {
+              if (_isSelectionMode) {
+                _toggleSelectionMode(note['id'] as int);
+              } else {
+                Navigator.pushNamed(context, '/note-editor-screen');
+              }
+            },
+            onLongPress: () {
               _toggleSelectionMode(note['id'] as int);
-            } else {
-              Navigator.pushNamed(context, '/note-editor-screen');
-            }
-          },
-          onLongPress: () {
-            _toggleSelectionMode(note['id'] as int);
-          },
-          onFavoriteToggle: () => _toggleFavorite(note['id'] as int),
-          onDelete: () => _deleteNote(note['id'] as int),
-          onTagTap: (tag) {
-            if (!_selectedTags.contains(tag)) {
-              setState(() {
-                _selectedTags.add(tag);
-              });
-              _applyFilters();
-            }
-          },
+            },
+            onFavoriteToggle: () => _toggleFavorite(note['id'] as int),
+            onDelete: () => _deleteNote(note['id'] as int),
+            onTagTap: (tag) {
+              if (!_selectedTags.contains(tag)) {
+                setState(() {
+                  _selectedTags.add(tag);
+                });
+                _applyFilters();
+              }
+            },
+          ),
         );
       },
     );
@@ -598,7 +649,7 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
 
   Widget _buildGridView() {
     return GridView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 3.w,
@@ -643,24 +694,37 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CustomIconWidget(
-            iconName: 'note_add',
-            color: AppTheme.lightTheme.colorScheme.outline,
-            size: 80,
+          Container(
+            width: 20.w,
+            height: 20.w,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline,
+                width: 2,
+              ),
+            ),
+            child: Icon(
+              Icons.note_add_outlined,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              size: 40,
+            ),
           ),
-          SizedBox(height: 3.h),
+          SizedBox(height: 4.h),
           Text(
             'No notes found',
-            style: AppTheme.lightTheme.textTheme.headlineSmall?.copyWith(
-              color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-            ),
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
           SizedBox(height: 1.h),
           Text(
             'Create your first note or adjust your filters',
-            style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
-              color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 4.h),
@@ -668,10 +732,10 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
             onPressed: () {
               Navigator.pushNamed(context, '/note-editor-screen');
             },
-            icon: CustomIconWidget(
-              iconName: 'add',
-              color: AppTheme.lightTheme.colorScheme.onPrimary,
-              size: 20,
+            icon: Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 18,
             ),
             label: Text('Create Note'),
           ),
@@ -681,15 +745,25 @@ class _NotesLibraryScreenState extends State<NotesLibraryScreen>
   }
 
   Widget _buildFloatingActionButton() {
-    return FloatingActionButton(
-      onPressed: () {
-        Navigator.pushNamed(context, '/note-editor-screen');
-      },
-      backgroundColor: AppTheme.lightTheme.colorScheme.primary,
-      child: CustomIconWidget(
-        iconName: 'add',
-        color: AppTheme.lightTheme.colorScheme.onPrimary,
-        size: 24,
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(26),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/note-editor-screen');
+        },
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 22,
+        ),
       ),
     );
   }

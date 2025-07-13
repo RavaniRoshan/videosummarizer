@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../core/app_export.dart';
 import './widgets/personal_note_card_widget.dart';
 import './widgets/processing_queue_widget.dart';
 import './widgets/recent_summary_card_widget.dart';
@@ -115,28 +114,42 @@ class _HomeDashboardState extends State<HomeDashboard>
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              backgroundColor: Theme.of(context).cardColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.outline,
+                  width: 1,
+                ),
+              ),
               title: Text(
                 'Add Video URL',
-                style: AppTheme.lightTheme.textTheme.titleLarge,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextField(
                     controller: urlController,
-                    decoration: const InputDecoration(
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    decoration: InputDecoration(
                       hintText: 'Enter YouTube video URL',
-                      prefixIcon: Icon(Icons.link),
+                      prefixIcon: Icon(
+                        Icons.link,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        size: 20,
+                      ),
                     ),
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 3.h),
                   Text(
-                    'Choose processing mode:',
-                    style: AppTheme.lightTheme.textTheme.bodyMedium,
+                    'Processing mode',
+                    style: Theme.of(context).textTheme.labelMedium,
                   ),
                   SizedBox(height: 1.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  Wrap(
+                    spacing: 2.w,
                     children: [
                       _buildModeChip('Summary', selectedMode, (mode) {
                         setState(() => selectedMode = mode);
@@ -151,12 +164,12 @@ class _HomeDashboardState extends State<HomeDashboard>
                   ),
                   SizedBox(height: 2.h),
                   Text(
-                    'AI Provider:',
-                    style: AppTheme.lightTheme.textTheme.bodyMedium,
+                    'AI Provider',
+                    style: Theme.of(context).textTheme.labelMedium,
                   ),
                   SizedBox(height: 1.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  Wrap(
+                    spacing: 2.w,
                     children: [
                       _buildProviderChip('Mock', selectedProvider, (provider) {
                         setState(() => selectedProvider = provider);
@@ -172,7 +185,12 @@ class _HomeDashboardState extends State<HomeDashboard>
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
+                  child: Text(
+                    'Cancel',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -202,16 +220,27 @@ class _HomeDashboardState extends State<HomeDashboard>
     final isSelected = mode == selectedMode;
     return GestureDetector(
       onTap: () => onSelect(mode),
-      child: Chip(
-        label: Text(
-          mode,
-          style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
-            color: isSelected ? Colors.white : null,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.surface,
+          border: Border.all(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.outline,
           ),
+          borderRadius: BorderRadius.circular(6),
         ),
-        backgroundColor: isSelected
-            ? AppTheme.lightTheme.colorScheme.primary
-            : AppTheme.lightTheme.colorScheme.primaryContainer,
+        child: Text(
+          mode,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface,
+              ),
+        ),
       ),
     );
   }
@@ -221,16 +250,27 @@ class _HomeDashboardState extends State<HomeDashboard>
     final isSelected = provider.toLowerCase() == selectedProvider.toLowerCase();
     return GestureDetector(
       onTap: () => onSelect(provider.toLowerCase()),
-      child: Chip(
-        label: Text(
-          provider,
-          style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
-            color: isSelected ? Colors.white : null,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).colorScheme.secondary
+              : Theme.of(context).colorScheme.surface,
+          border: Border.all(
+            color: isSelected
+                ? Theme.of(context).colorScheme.secondary
+                : Theme.of(context).colorScheme.outline,
           ),
+          borderRadius: BorderRadius.circular(6),
         ),
-        backgroundColor: isSelected
-            ? AppTheme.lightTheme.colorScheme.secondary
-            : AppTheme.lightTheme.colorScheme.secondaryContainer,
+        child: Text(
+          provider,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface,
+              ),
+        ),
       ),
     );
   }
@@ -259,74 +299,91 @@ class _HomeDashboardState extends State<HomeDashboard>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.lightTheme.scaffoldBackgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _handleRefresh,
+          color: Theme.of(context).colorScheme.primary,
           child: CustomScrollView(
             controller: _scrollController,
             slivers: [
-              // Header Section
+              // Notion-style Header Section
               SliverToBoxAdapter(
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-                  child: Row(
+                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 3.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 6.w,
-                        backgroundColor:
-                            AppTheme.lightTheme.colorScheme.primary,
-                        child: Text(
-                          'JD',
-                          style: AppTheme.lightTheme.textTheme.titleMedium
-                              ?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
+                      Row(
+                        children: [
+                          Container(
+                            width: 10.w,
+                            height: 10.w,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'JD',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      SizedBox(width: 3.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Good morning, John!',
-                              style: AppTheme.lightTheme.textTheme.titleLarge
-                                  ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          SizedBox(width: 4.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Good morning, John',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                                SizedBox(height: 0.5.h),
+                                Text(
+                                  'Ready to learn something new?',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              'Ready to learn something new?',
-                              style: AppTheme.lightTheme.textTheme.bodyMedium
-                                  ?.copyWith(
-                                color: AppTheme
-                                    .lightTheme.colorScheme.onSurfaceVariant,
-                              ),
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.search,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              size: 22,
                             ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          // Open search functionality
-                        },
-                        icon: CustomIconWidget(
-                          iconName: 'search',
-                          color: AppTheme.lightTheme.colorScheme.onSurface,
-                          size: 24,
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
               ),
 
-              // Recent Summaries Section
+              // Recent Summaries Section - Notion style
               SliverToBoxAdapter(
                 child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                  margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -335,40 +392,56 @@ class _HomeDashboardState extends State<HomeDashboard>
                         children: [
                           Text(
                             'Recent Summaries',
-                            style: AppTheme.lightTheme.textTheme.titleLarge
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
                                 ?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                           TextButton(
                             onPressed: () {
                               Navigator.pushNamed(
                                   context, '/summary-view-screen');
                             },
-                            child: const Text('View All'),
+                            child: Text(
+                              'View all',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                            ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 1.h),
+                      SizedBox(height: 2.h),
                       SizedBox(
-                        height: 25.h,
+                        height: 22.h,
                         child: recentSummaries.isEmpty
                             ? _buildEmptyState('No summaries yet',
                                 'Start by adding a YouTube video URL')
                             : ListView.builder(
                                 scrollDirection: Axis.horizontal,
+                                padding: EdgeInsets.only(left: 1.w),
                                 itemCount: recentSummaries.length,
                                 itemBuilder: (context, index) {
                                   final summary = recentSummaries[index];
-                                  return RecentSummaryCardWidget(
-                                    summary: summary,
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                          context, '/summary-view-screen');
-                                    },
-                                    onLongPress: () {
-                                      _showSummaryContextMenu(summary);
-                                    },
+                                  return Container(
+                                    width: 75.w,
+                                    margin: EdgeInsets.only(right: 4.w),
+                                    child: RecentSummaryCardWidget(
+                                      summary: summary,
+                                      onTap: () {
+                                        Navigator.pushNamed(
+                                            context, '/summary-view-screen');
+                                      },
+                                      onLongPress: () {
+                                        _showSummaryContextMenu(summary);
+                                      },
+                                    ),
                                   );
                                 },
                               ),
@@ -378,10 +451,10 @@ class _HomeDashboardState extends State<HomeDashboard>
                 ),
               ),
 
-              // Personal Notes Section
+              // Personal Notes Section - Notion style
               SliverToBoxAdapter(
                 child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                  margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -390,17 +463,28 @@ class _HomeDashboardState extends State<HomeDashboard>
                         children: [
                           Text(
                             'Personal Notes',
-                            style: AppTheme.lightTheme.textTheme.titleLarge
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
                                 ?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                           TextButton(
                             onPressed: () {
                               Navigator.pushNamed(
                                   context, '/notes-library-screen');
                             },
-                            child: const Text('View All'),
+                            child: Text(
+                              'View all',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                            ),
                           ),
                         ],
                       ),
@@ -410,12 +494,12 @@ class _HomeDashboardState extends State<HomeDashboard>
                 ),
               ),
 
-              // Personal Notes List
+              // Personal Notes List - Notion style cards
               personalNotes.isEmpty
                   ? SliverToBoxAdapter(
                       child: Container(
                         height: 20.h,
-                        margin: EdgeInsets.symmetric(horizontal: 4.w),
+                        margin: EdgeInsets.symmetric(horizontal: 5.w),
                         child: _buildEmptyState(
                             'No notes yet', 'Create your first note'),
                       ),
@@ -424,22 +508,28 @@ class _HomeDashboardState extends State<HomeDashboard>
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final note = personalNotes[index];
-                          return PersonalNoteCardWidget(
-                            note: note,
-                            onTap: () {
-                              Navigator.pushNamed(
-                                  context, '/note-editor-screen');
-                            },
-                            onEdit: () {
-                              Navigator.pushNamed(
-                                  context, '/note-editor-screen');
-                            },
-                            onArchive: () {
-                              // Handle archive action
-                            },
-                            onTag: () {
-                              // Handle tag action
-                            },
+                          return Container(
+                            margin: EdgeInsets.symmetric(
+                              horizontal: 5.w,
+                              vertical: 0.75.h,
+                            ),
+                            child: PersonalNoteCardWidget(
+                              note: note,
+                              onTap: () {
+                                Navigator.pushNamed(
+                                    context, '/note-editor-screen');
+                              },
+                              onEdit: () {
+                                Navigator.pushNamed(
+                                    context, '/note-editor-screen');
+                              },
+                              onArchive: () {
+                                // Handle archive action
+                              },
+                              onTag: () {
+                                // Handle tag action
+                              },
+                            ),
                           );
                         },
                         childCount:
@@ -447,28 +537,31 @@ class _HomeDashboardState extends State<HomeDashboard>
                       ),
                     ),
 
-              // Processing Queue Section
+              // Processing Queue Section - Notion style
               if (processingQueue.isNotEmpty)
                 SliverToBoxAdapter(
                   child: Container(
                     margin:
-                        EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+                        EdgeInsets.symmetric(horizontal: 5.w, vertical: 3.h),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Processing Queue',
-                          style: AppTheme.lightTheme.textTheme.titleLarge
-                              ?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                         ),
-                        SizedBox(height: 1.h),
-                        ...processingQueue.map((item) => ProcessingQueueWidget(
-                              item: item,
-                              onCancel: () {
-                                // Handle cancel processing
-                              },
+                        SizedBox(height: 2.h),
+                        ...processingQueue.map((item) => Container(
+                              margin: EdgeInsets.only(bottom: 1.h),
+                              child: ProcessingQueueWidget(
+                                item: item,
+                                onCancel: () {
+                                  // Handle cancel processing
+                                },
+                              ),
                             )),
                       ],
                     ),
@@ -477,66 +570,76 @@ class _HomeDashboardState extends State<HomeDashboard>
 
               // Bottom spacing
               SliverToBoxAdapter(
-                child: SizedBox(height: 10.h),
+                child: SizedBox(height: 12.h),
               ),
             ],
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showVideoInputDialog,
-        child: CustomIconWidget(
-          iconName: 'add',
-          color: Colors.white,
-          size: 28,
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(26),
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: _showVideoInputDialog,
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 24,
+          ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onBottomNavTap,
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(
-            icon: CustomIconWidget(
-              iconName: 'home',
-              color: _currentIndex == 0
-                  ? AppTheme.lightTheme.colorScheme.primary
-                  : AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-              size: 24,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).colorScheme.outline,
+              width: 1,
             ),
-            label: 'Home',
           ),
-          BottomNavigationBarItem(
-            icon: CustomIconWidget(
-              iconName: 'note',
-              color: _currentIndex == 1
-                  ? AppTheme.lightTheme.colorScheme.primary
-                  : AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-              size: 24,
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: _onBottomNavTap,
+          type: BottomNavigationBarType.fixed,
+          elevation: 0,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 0 ? Icons.home : Icons.home_outlined,
+                size: 22,
+              ),
+              label: 'Home',
             ),
-            label: 'Notes',
-          ),
-          BottomNavigationBarItem(
-            icon: CustomIconWidget(
-              iconName: 'favorite',
-              color: _currentIndex == 2
-                  ? AppTheme.lightTheme.colorScheme.primary
-                  : AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-              size: 24,
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 1 ? Icons.note : Icons.note_outlined,
+                size: 22,
+              ),
+              label: 'Notes',
             ),
-            label: 'Favorites',
-          ),
-          BottomNavigationBarItem(
-            icon: CustomIconWidget(
-              iconName: 'person',
-              color: _currentIndex == 3
-                  ? AppTheme.lightTheme.colorScheme.primary
-                  : AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-              size: 24,
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 2 ? Icons.favorite : Icons.favorite_border,
+                size: 22,
+              ),
+              label: 'Favorites',
             ),
-            label: 'Profile',
-          ),
-        ],
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 3 ? Icons.person : Icons.person_outline,
+                size: 22,
+              ),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -546,27 +649,39 @@ class _HomeDashboardState extends State<HomeDashboard>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CustomIconWidget(
-            iconName: 'video_library',
-            color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-            size: 48,
+          Container(
+            width: 15.w,
+            height: 15.w,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline,
+                width: 2,
+              ),
+            ),
+            child: Icon(
+              Icons.video_library_outlined,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              size: 32,
+            ),
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 3.h),
           Text(
             title,
-            style: AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
           ),
-          SizedBox(height: 0.5.h),
+          SizedBox(height: 1.h),
           Text(
             subtitle,
-            style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
-              color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 3.h),
           ElevatedButton(
             onPressed: _showVideoInputDialog,
             child: const Text('Get Started'),
@@ -579,53 +694,78 @@ class _HomeDashboardState extends State<HomeDashboard>
   void _showSummaryContextMenu(Map<String, dynamic> summary) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).cardColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline,
+          width: 1,
+        ),
+      ),
       builder: (BuildContext context) {
         return Container(
-          padding: EdgeInsets.all(4.w),
+          padding: EdgeInsets.all(5.w),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                leading: CustomIconWidget(
-                  iconName: 'share',
-                  color: AppTheme.lightTheme.colorScheme.onSurface,
-                  size: 24,
+              // Handle bar
+              Container(
+                width: 12.w,
+                height: 0.5.h,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.outline,
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                title: const Text('Share'),
+              ),
+              SizedBox(height: 3.h),
+              ListTile(
+                leading: Icon(
+                  Icons.share_outlined,
+                  color: Theme.of(context).colorScheme.onSurface,
+                  size: 20,
+                ),
+                title: Text(
+                  'Share',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   // Handle share action
                 },
               ),
               ListTile(
-                leading: CustomIconWidget(
-                  iconName: 'favorite_border',
-                  color: AppTheme.lightTheme.colorScheme.onSurface,
-                  size: 24,
+                leading: Icon(
+                  Icons.favorite_border,
+                  color: Theme.of(context).colorScheme.onSurface,
+                  size: 20,
                 ),
-                title: const Text('Add to Favorites'),
+                title: Text(
+                  'Add to Favorites',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   // Handle favorite action
                 },
               ),
               ListTile(
-                leading: CustomIconWidget(
-                  iconName: 'delete',
-                  color: AppTheme.lightTheme.colorScheme.error,
-                  size: 24,
+                leading: Icon(
+                  Icons.delete_outline,
+                  color: Theme.of(context).colorScheme.error,
+                  size: 20,
                 ),
                 title: Text(
                   'Delete',
-                  style: TextStyle(
-                    color: AppTheme.lightTheme.colorScheme.error,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                 ),
                 onTap: () {
                   Navigator.pop(context);
                   // Handle delete action
                 },
               ),
+              SizedBox(height: 2.h),
             ],
           ),
         );

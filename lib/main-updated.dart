@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
         title: 'videosummarizer',
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.light,
+        themeMode: ThemeMode.dark, // Changed to dark mode by default
         // 🚨 CRITICAL: NEVER REMOVE OR MODIFY
         builder: (context, child) {
           return CustomWidgetInspector(
